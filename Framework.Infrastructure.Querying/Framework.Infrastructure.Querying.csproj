@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{AAEEE1DE-0A8C-49DD-8ED5-BEFB6FEC75A3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Framework.Infrastructure.Querying</RootNamespace>
+    <AssemblyName>Framework.Infrastructure.Querying</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Expressions\ExpressionBuilder.cs" />
+    <Compile Include="Expressions\ExpressionBuilderBase.cs" />
+    <Compile Include="Expressions\ExpressionBuilderFactory.cs" />
+    <Compile Include="Expressions\ExpressionBuilderOptions.cs" />
+    <Compile Include="Expressions\ExpressionConstants.cs" />
+    <Compile Include="Expressions\ExpressionFactory.cs" />
+    <Compile Include="Expressions\Filtering\FilterDescription.cs" />
+    <Compile Include="Expressions\Filtering\FilterDescriptionExpressionBuilder.cs" />
+    <Compile Include="Expressions\Filtering\FilterDescriptorCollectionExpressionBuilder.cs" />
+    <Compile Include="Expressions\Filtering\FilterDescriptorExpressionBuilder.cs" />
+    <Compile Include="Expressions\Filtering\FilterExpressionBuilder.cs" />
+    <Compile Include="Expressions\Filtering\FilterOperatorExtensions.cs" />
+    <Compile Include="Expressions\Filtering\PredicateFilterDescription.cs" />
+    <Compile Include="Expressions\MemberAccess\MemberAccessExpressionBuilderBase.cs" />
+    <Compile Include="Expressions\MemberAccess\PropertyAccessExpressionBuilder.cs" />
+    <Compile Include="Expressions\MemberAccess\Tokenizer\IMemberAccessToken.cs" />
+    <Compile Include="Expressions\MemberAccess\Tokenizer\IndexerToken.cs" />
+    <Compile Include="Expressions\MemberAccess\Tokenizer\MemberAccessTokenExtensions.cs" />
+    <Compile Include="Expressions\MemberAccess\Tokenizer\MemberAccessTokenizer.cs" />
+    <Compile Include="Expressions\MemberAccess\Tokenizer\PropertyToken.cs" />
+    <Compile Include="Expressions\Sorting\SortDescriptorCollectionExpressionBuilder.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Extensions\FilterDescriptorExtensions.cs" />
+    <Compile Include="Extensions\PropertyNameHelper.cs" />
+    <Compile Include="Extensions\QueryableExtensions.cs" />
+    <Compile Include="Extensions\QueryProviderExtensions.cs" />
+    <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="Filter\CompositeFilterDescriptor.cs" />
+    <Compile Include="Filter\FilterCompositionLogicalOperator.cs" />
+    <Compile Include="Filter\FilterDescriptor.cs" />
+    <Compile Include="Filter\FilterDescriptor.Extension.cs" />
+    <Compile Include="Filter\FilterDescriptorBase.cs" />
+    <Compile Include="Filter\FilterDescriptorCollection.cs" />
+    <Compile Include="Filter\FilterOperator.cs" />
+    <Compile Include="Filter\IFilterDescriptor.cs" />
+    <Compile Include="Pagination.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Query.cs" />
+    <Compile Include="Sort\ISortDescriptor.cs" />
+    <Compile Include="Sort\SortDescriptor.cs" />
+    <Compile Include="SQL\Filtering\CompositeFilterDescriptiorSqlDBSQLBuilderExtension.cs" />
+    <Compile Include="SQL\Filtering\FilterDescriptiorSqlDBSQLBuilderExtension.cs" />
+    <Compile Include="SQL\SQLBuilder.cs" />
+    <Compile Include="SQL\SqlDBSQLBuildContext.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

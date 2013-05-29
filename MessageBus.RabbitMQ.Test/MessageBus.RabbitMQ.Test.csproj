@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E02A1540-E3AA-4F3A-9100-0B85F19BA686}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MessageBus.RabbitMQ.Test</RootNamespace>
+    <AssemblyName>MessageBus.RabbitMQ.Test</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Practices.Unity">
+      <HintPath>..\packages\EntLib50\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Moq">
+      <HintPath>..\packages\Moq\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <CodeAnalysisDependentAssemblyPaths Condition=" '$(VS100COMNTOOLS)' != '' " Include="$(VS100COMNTOOLS)..\IDE\PrivateAssemblies">
+      <Visible>False</Visible>
+    </CodeAnalysisDependentAssemblyPaths>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PublishSubscribeTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Framework.Infrastructure.Container.UnityContainer\Framework.Infrastructure.Container.UnityContainer.csproj">
+      <Project>{0D8E74CE-D0C2-452A-BFEF-85C4C9CB2668}</Project>
+      <Name>Framework.Infrastructure.Container.UnityContainer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Framework.Infrastructure.Logger.Log4net\Framework.Infrastructure.Logger.Log4net.csproj">
+      <Project>{05110513-C2CD-4718-8535-D6B3DE2F77AA}</Project>
+      <Name>Framework.Infrastructure.Logger.Log4net</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Framework.Infrastructure.MessageBus.RabbitMQ\Framework.Infrastructure.MessageBus.RabbitMQ.csproj">
+      <Project>{9FD9E7C9-B1E5-4D03-AABA-0A5B352AF9F4}</Project>
+      <Name>Framework.Infrastructure.MessageBus.RabbitMQ</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Framework.Infrastructure.MessageBus\Framework.Infrastructure.MessageBus.csproj">
+      <Project>{389BF61C-9C03-411B-8AA6-34D2EDFF3696}</Project>
+      <Name>Framework.Infrastructure.MessageBus</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Framework.Infrastructure\Framework.Infrastructure.csproj">
+      <Project>{8DAAEAC2-1145-43AE-80B5-8631761C45FE}</Project>
+      <Name>Framework.Infrastructure</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
