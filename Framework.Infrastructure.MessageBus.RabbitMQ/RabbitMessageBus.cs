@@ -15,7 +15,8 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
 {
     public class RabbitMessageBus : IMessageBus
     {
-        private static readonly string MessageBusLoggerName = "MessageBusLogger";
+        internal static readonly string MessageBusLoggerName = "MessageBusLogger";
+
         private readonly IConnectionConfiguration connectionConfiguration;
         private readonly SerializeType serializeType;
         private readonly ISerializer serializer;
@@ -38,30 +39,17 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
 
             var connectionStringParser = new ConnectionStringParser();
             connectionConfiguration = connectionStringParser.Parse(connectionString);
-            serializeType = TypeNameSerializer.Serialize;
+            ServiceFactory.Instance.Container.RegisterInstance<IConnectionConfiguration>(connectionConfiguration);
 
-            logger = ServiceFactory.Instance.GetDefaultLoggerProvider().GetLogger(MessageBusLoggerName);
-            serializer = ServiceFactory.Instance.Container.GetService<ISerializer>() ?? new JsonSerializer();
-            conventions = ServiceFactory.Instance.Container.GetService<IConventions>() ?? new Conventions();
+            serializeType = TypeNameSerializer.Serialize;
             getCorrelationId = CorrelationIdGenerator.GetCorrelationId;
 
-            var connectionFactory = ServiceFactory.Instance.Container.GetService<IConnectionFactory>() ??
-                new ConnectionFactoryWrapper(
-                    connectionConfiguration,
-                    ServiceFactory.Instance.Container.GetService<IClusterHostSelectionStrategy<ConnectionFactoryInfo>>()
-                    ?? new DefaultClusterHostSelectionStrategy<ConnectionFactoryInfo>());
+            logger = ServiceFactory.Instance.GetDefaultLoggerProvider().GetLogger(MessageBusLoggerName);
+            serializer = ServiceFactory.Instance.Container.Resolve<ISerializer>();
+            conventions = ServiceFactory.Instance.Container.Resolve<IConventions>();
+            consumerFactory = ServiceFactory.Instance.Container.Resolve<IConsumerFactory>();
 
-            consumerFactory = ServiceFactory.Instance.Container.GetService<IConsumerFactory>() ??
-                new QueueingConsumerFactory(
-                    logger,
-                    ServiceFactory.Instance.Container.GetService<IConsumerErrorStrategy>() ??
-                    new DefaultConsumerErrorStrategy(
-                        connectionFactory,
-                        serializer,
-                        logger,
-                        conventions));
-
-            connection = new PersistentConnection(connectionFactory, logger);
+            connection = ServiceFactory.Instance.Container.Resolve<IPersistentConnection>();
             connection.Connected += OnConnected;
             connection.Disconnected += consumerFactory.ClearConsumers;
             connection.Disconnected += OnDisconnected;

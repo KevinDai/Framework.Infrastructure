@@ -24,14 +24,14 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
     {
         private const int connectAttemptIntervalMilliseconds = 5000;
 
-        private readonly IConnectionFactory connectionFactory;
-        private readonly ILogger logger;
-        private IConnection connection;
+        private readonly IConnectionFactory _connectionFactory;
+        private readonly ILogger _logger;
+        private IConnection _connection;
 
-        public PersistentConnection(IConnectionFactory connectionFactory, ILogger logger)
+        public PersistentConnection(IConnectionFactory connectionFactory)
         {
-            this.connectionFactory = connectionFactory;
-            this.logger = logger;
+            _connectionFactory = connectionFactory;
+            _logger = ServiceFactory.Instance.GetDefaultLoggerProvider().GetLogger(RabbitMessageBus.MessageBusLoggerName);
 
             TryToConnect(null);
         }
@@ -45,12 +45,12 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
             {
                 throw new Exception("Rabbit server is not connected.");
             }
-            return connection.CreateModel();
+            return _connection.CreateModel();
         }
 
         public bool IsConnected
         {
-            get { return connection != null && connection.IsOpen && !disposed; }
+            get { return _connection != null && _connection.IsOpen && !disposed; }
         }
 
         void StartTryToConnect()
@@ -63,16 +63,16 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
         {
             if (timer != null) ((Timer)timer).Dispose();
 
-            logger.Debug("Trying to connect");
+            _logger.Debug("Trying to connect");
             if (disposed) return;
 
-            connectionFactory.Reset();
+            _connectionFactory.Reset();
             do
             {
                 try
                 {
-                    connection = connectionFactory.CreateConnection();
-                    connectionFactory.Success();
+                    _connection = _connectionFactory.CreateConnection();
+                    _connectionFactory.Success();
                 }
                 catch (System.Net.Sockets.SocketException socketException)
                 {
@@ -82,21 +82,21 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
                 {
                     LogException(brokerUnreachableException);
                 }
-            } while (connectionFactory.Next());
+            } while (_connectionFactory.Next());
 
-            if (connectionFactory.Succeeded)
+            if (_connectionFactory.Succeeded)
             {
-                connection.ConnectionShutdown += OnConnectionShutdown;
+                _connection.ConnectionShutdown += OnConnectionShutdown;
 
                 OnConnected();
-                logger.Info(string.Format("Connected to RabbitMQ. Broker: '{0}', Port: {1}, VHost: '{2}'",
-                    connectionFactory.CurrentHost.Host,
-                    connectionFactory.CurrentHost.Port,
-                    connectionFactory.Configuration.VirtualHost));
+                _logger.Info(string.Format("Connected to RabbitMQ. Broker: '{0}', Port: {1}, VHost: '{2}'",
+                    _connectionFactory.CurrentHost.Host,
+                    _connectionFactory.CurrentHost.Port,
+                    _connectionFactory.Configuration.VirtualHost));
             }
             else
             {
-                logger.Error(string.Format("Failed to connected to any Broker. Retrying in {0} ms\n",
+                _logger.Error(string.Format("Failed to connected to any Broker. Retrying in {0} ms\n",
                     connectAttemptIntervalMilliseconds));
                 StartTryToConnect();
             }
@@ -104,11 +104,11 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
 
         void LogException(Exception exception)
         {
-            logger.Error(string.Format("Failed to connect to Broker: '{0}', Port: {1} VHost: '{2}'. " +
+            _logger.Error(string.Format("Failed to connect to Broker: '{0}', Port: {1} VHost: '{2}'. " +
                     "ExceptionMessage: '{3}'",
-                connectionFactory.CurrentHost.Host,
-                connectionFactory.CurrentHost.Port,
-                connectionFactory.Configuration.VirtualHost,
+                _connectionFactory.CurrentHost.Host,
+                _connectionFactory.CurrentHost.Port,
+                _connectionFactory.Configuration.VirtualHost,
                 exception.Message));
         }
 
@@ -118,14 +118,14 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
             OnDisconnected();
 
             // try to reconnect and re-subscribe
-            logger.Info("Disconnected from RabbitMQ Broker");
+            _logger.Info("Disconnected from RabbitMQ Broker");
 
             TryToConnect(null);
         }
 
         public void OnConnected()
         {
-            logger.Debug("OnConnected event fired");
+            _logger.Debug("OnConnected event fired");
             if (Connected != null) Connected();
         }
 
@@ -139,7 +139,7 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
         {
             if (disposed) return;
             disposed = true;
-            if (connection != null) connection.Dispose();
+            if (_connection != null) _connection.Dispose();
         }
     }
 }

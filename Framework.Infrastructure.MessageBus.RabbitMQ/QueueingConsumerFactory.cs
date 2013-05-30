@@ -33,9 +33,10 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
         // useful for testing, called when DoAck is called after a message is handled
         public Action SynchronisationAction { get; set; }
 
-        public QueueingConsumerFactory(ILogger logger, IConsumerErrorStrategy consumerErrorStrategy)
+        public QueueingConsumerFactory(IConsumerErrorStrategy consumerErrorStrategy)
         {
-            this.logger = logger;
+            logger = ServiceFactory.Instance.GetDefaultLoggerProvider().GetLogger(RabbitMessageBus.MessageBusLoggerName);
+            //this.logger = logger;
             this.consumerErrorStrategy = consumerErrorStrategy;
 
             // start the subscription callback thread

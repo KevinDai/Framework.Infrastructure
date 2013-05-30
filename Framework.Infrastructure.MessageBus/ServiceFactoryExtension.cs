@@ -11,7 +11,7 @@ namespace Framework.Infrastructure.MessageBus
     {
         public static IMessageBus GetDefaultMessageQueue(this ServiceFactory serviceFactory)
         {
-            return serviceFactory.Container.GetService<IMessageBus>();
+            return serviceFactory.Container.Resolve<IMessageBus>();
         }
     }
 }

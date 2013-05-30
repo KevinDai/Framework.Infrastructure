@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections;
 
 namespace Framework.Infrastructure.Container
 {
@@ -10,39 +11,43 @@ namespace Framework.Infrastructure.Container
     /// </summary>
     public static class ContainerExtension
     {
-        /// <summary>
-        /// 根据类型获取实例对象
-        /// </summary>
-        /// <typeparam name="TService">服务类型</typeparam>
-        /// <param name="resolver">Ioc容器对象</param>
-        /// <returns>服务对象</returns>
-        public static TService GetService<TService>(this IContainer resolver)
+        public static bool IsRegistered<T>(this IContainer container)
         {
-            return (TService)resolver.GetService(typeof(TService));
+            return container.IsRegistered(typeof(T), null);
         }
 
-        /// <summary>
-        /// 根据名称和服务类型获取实例对象
-        /// </summary>
-        /// <typeparam name="TService">服务类型</typeparam>
-        /// <param name="resolver">Ioc容器对象</param>
-        /// <param name="name">服务名称</param>
-        /// <returns>服务对象</returns>
-        public static TService GetService<TService>(this IContainer resolver, string name)
+        public static bool IsRegistered<T>(this IContainer container, string nameToCheck)
         {
-            return (TService)resolver.GetService(typeof(TService), name);
+            return container.IsRegistered(typeof(T), nameToCheck);
         }
 
-        /// <summary>
-        /// 根据类型获取多个实例对象
-        /// </summary>
-        /// <typeparam name="TService">服务类型</typeparam>
-        /// <param name="resolver">Ioc容器对象</param>
-        /// <returns>服务对象集合</returns>
-        public static IEnumerable<TService> GetServices<TService>(this IContainer resolver)
+        public static IContainer RegisterInstance<T>(this IContainer container, T instance)
         {
+            return container.RegisterInstance<T>(null, instance);
+        }
 
-            return resolver.GetServices(typeof(TService)).Cast<TService>();
+        public static IContainer RegisterInstance<T>(this IContainer container, string name, T instance)
+        {
+            return container.RegisterInstance(typeof(T), name, instance);
+        }
+
+        public static IContainer RegisterType<TFrom, TTo>(this IContainer container, string name, LifeTime lifeTime = LifeTime.Transient) where TTo : TFrom
+        {
+            return container.RegisterType(typeof(TFrom), typeof(TTo), null, lifeTime);
+        }
+
+        public static IContainer RegisterType<TFrom, TTo>(this IContainer container, LifeTime lifeTime = LifeTime.Transient) where TTo : TFrom
+        {
+            return container.RegisterType<TFrom, TTo>(null, lifeTime);
+        }
+
+        public static T Resolve<T>(this IContainer container, IDictionary<string, object> arguments = null)
+        {
+            return container.Resolve<T>(null, arguments);
+        }
+        public static T Resolve<T>(this IContainer container, string name, IDictionary<string, object> arguments = null)
+        {
+            return (T)container.Resolve(typeof(T), name, arguments);
         }
     }
 }

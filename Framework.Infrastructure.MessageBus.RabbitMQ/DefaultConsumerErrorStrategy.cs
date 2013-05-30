@@ -24,14 +24,15 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
         public DefaultConsumerErrorStrategy(
             IConnectionFactory connectionFactory,
             ISerializer serializer,
-            ILogger logger,
             IConventions conventions)
         {
             Preconditions.CheckNotNull(conventions, "conventions");
 
+            logger = ServiceFactory.Instance.GetDefaultLoggerProvider().GetLogger(RabbitMessageBus.MessageBusLoggerName);
+
             this.connectionFactory = connectionFactory;
             this.serializer = serializer;
-            this.logger = logger;
+            //this.logger = logger;
             this.conventions = conventions;
         }
 

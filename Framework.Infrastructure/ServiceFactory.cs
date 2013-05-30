@@ -9,6 +9,8 @@ namespace Framework.Infrastructure
     using Cache;
     using Configuration;
     using Logger;
+    using System.ComponentModel.Composition;
+    using System.ComponentModel.Composition.Hosting;
 
     /// <summary>
     /// 服务工厂，从IOC容器中获取各种服务对象
@@ -34,32 +36,84 @@ namespace Framework.Infrastructure
         /// <summary>
         /// IOC容器对象
         /// </summary>
+        [Import]
         public IContainer Container
         {
             get;
             private set;
         }
 
-        private ServiceFactory(IContainer container)
+        //[ImportMany]
+        //public IEnumerable<IComponent> Components
+        //{
+        //    get;
+        //    private set;
+        //}
+
+        internal ComponentHost ComponentHost
         {
-            Container = container;
+            get;
+            private set;
+        }
+
+        protected CompositionContainer CompositionContainer
+        {
+            get;
+            private set;
+        }
+
+        private ServiceFactory()
+        {
+            var directoryCatalog = new DirectoryCatalog(AppDomain.CurrentDomain.BaseDirectory);
+            CompositionContainer = new CompositionContainer(directoryCatalog);
+
+            //var directoryCatalog = new DirectoryCatalog(AppDomain.CurrentDomain.BaseDirectory);
+            ////var assemblyCatalog = new AssemblyCatalog(Assembly.GetExecutingAssembly());
+
+            ////var catalog = new AggregateCatalog(assemblyCatalog, directoryCatalog);
+
+            //container = new CompositionContainer(directoryCatalog);
+            //container.ComposeParts(this);
+        }
+
+
+        protected void InternalInitialize(IContainer container = null)
+        {
+            if (container != null)
+            {
+                Container = container;
+            }
+            else
+            {
+                CompositionContainer.ComposeParts(this);
+            }
+
+            ComponentHost = new ComponentHost(CompositionContainer);
+            ComponentHost.Initialize();
+            //var directoryCatalog = new DirectoryCatalog(AppDomain.CurrentDomain.BaseDirectory);
+            ////var assemblyCatalog = new AssemblyCatalog(Assembly.GetExecutingAssembly());
+
+            ////var catalog = new AggregateCatalog(assemblyCatalog, directoryCatalog);
+
+            //container = new CompositionContainer(directoryCatalog);
+            //container.ComposeParts(this);
+
         }
 
         /// <summary>
         /// 初始化服务工厂
         /// </summary>
         /// <param name="container"></param>
-        public static void Initialize(IContainer container)
+        public static void Initialize(IContainer container = null)
         {
-            if (container == null)
-            {
-                throw new ArgumentNullException("container");
-            }
+            //Preconditions.CheckNotNull(container, "container");
+
             if (_instance != null)
             {
-                throw new InvalidOperationException("服务工厂的IOC容器已经初始化");
+                throw new InvalidOperationException("服务工厂已经初始化");
             }
-            _instance = new ServiceFactory(container);
+            _instance = new ServiceFactory();
+            _instance.InternalInitialize();
         }
 
         /// <summary>
@@ -67,7 +121,7 @@ namespace Framework.Infrastructure
         /// </summary>
         public IConfigurationProvider GetDefaultConfigurationProvider()
         {
-            return Container.GetService<IConfigurationProvider>();
+            return Container.Resolve<IConfigurationProvider>();
         }
 
         /// <summary>
@@ -75,7 +129,7 @@ namespace Framework.Infrastructure
         /// </summary>
         public ICacheProvider GetDefaultCacheProvider()
         {
-            return Container.GetService<ICacheProvider>();
+            return Container.Resolve<ICacheProvider>();
         }
 
         /// <summary>
@@ -83,7 +137,7 @@ namespace Framework.Infrastructure
         /// </summary>
         public ILoggerProvider GetDefaultLoggerProvider()
         {
-            return Container.GetService<ILoggerProvider>();
+            return Container.Resolve<ILoggerProvider>();
         }
 
     }

@@ -39,6 +39,7 @@
       <HintPath>..\packages\rabbitmq\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -70,6 +71,7 @@
     <Compile Include="PublisherConfirms.cs" />
     <Compile Include="QueueingConsumerFactory.cs" />
     <Compile Include="RabbitMessageBus.cs" />
+    <Compile Include="RabbitMessageBusComponent.cs" />
     <Compile Include="RabbitPublishChannel.cs" />
     <Compile Include="Sprache\Failure.cs" />
     <Compile Include="Sprache\IFailure.cs" />

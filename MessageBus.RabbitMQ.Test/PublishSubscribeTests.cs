@@ -50,9 +50,8 @@ namespace MessageBus.RabbitMQ.Test
         [ClassInitialize()]
         public static void ClassInitialize(TestContext testContext)
         {
-            var containner = new UnityContainer();
-            containner.RegisterType(typeof(ILoggerProvider), typeof(Log4netLoggerProvider), new ContainerControlledLifetimeManager());
-            ServiceFactory.Initialize(new Framework.Infrastructure.Container.UnityContainer.UnityContainer(containner));
+            ServiceFactory.Initialize();
+            //ServiceFactory.Initialize(new Framework.Infrastructure.Container.UnityContainer.UnityContainer(containner));
             //container.Container
             //ServiceFactory.Initialize(new
             _messageBus = new RabbitMessageBus(@"host=localhost:5672;virtualHost=/;username=guest;password=guest");
