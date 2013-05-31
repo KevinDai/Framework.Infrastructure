@@ -54,7 +54,7 @@ namespace MessageBus.RabbitMQ.Test
             //ServiceFactory.Initialize(new Framework.Infrastructure.Container.UnityContainer.UnityContainer(containner));
             //container.Container
             //ServiceFactory.Initialize(new
-            _messageBus = new RabbitMessageBus(@"host=localhost:5672;virtualHost=/;username=guest;password=guest");
+            //_messageBus = new RabbitMessageBus(@"host=localhost:5672;virtualHost=/;username=guest;password=guest");
         }
         //
         // 在类中的所有测试都已运行之后使用 ClassCleanup 运行代码
@@ -77,14 +77,14 @@ namespace MessageBus.RabbitMQ.Test
         [TestMethod]
         public void Should_be_able_to_publish()
         {
-            var message = new Message<string>("Hello! " + Guid.NewGuid().ToString().Substring(0, 5));
-            message.Properties.DeliveryMode = 2;
-            using (var publishChannel = _messageBus.OpenPublishChannel())
-            {
-                var queue = Queue.DeclareDurable("Test");
-                publishChannel.Publish(queue, message);
-            }
-            Console.Out.WriteLine("message.Text = {0}", message.Body);
+            //var message = new Message<string>("Hello! " + Guid.NewGuid().ToString().Substring(0, 5));
+            //message.Properties.DeliveryMode = 2;
+            //using (var publishChannel = _messageBus.OpenPublishChannel())
+            //{
+            //    var queue = Queue.DeclareDurable("Test");
+            //    publishChannel.Publish(queue, message);
+            //}
+            //Console.Out.WriteLine("message.Text = {0}", message.Body);
         }
 
         [TestMethod]

@@ -28,7 +28,7 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
         {
             Preconditions.CheckNotNull(conventions, "conventions");
 
-            logger = ServiceFactory.Instance.GetDefaultLoggerProvider().GetLogger(RabbitMessageBus.MessageBusLoggerName);
+            logger = ServiceFactory.Instance.LoggerProvider.GetLogger(RabbitMessageBus.MessageBusLoggerName);
 
             this.connectionFactory = connectionFactory;
             this.serializer = serializer;

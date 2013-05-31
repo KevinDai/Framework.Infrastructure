@@ -52,7 +52,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Log4netComponent.cs" />
     <Compile Include="Log4netLogger.cs" />
     <Compile Include="Log4netLoggerProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

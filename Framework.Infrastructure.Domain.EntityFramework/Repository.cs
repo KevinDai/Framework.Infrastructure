@@ -79,7 +79,7 @@ namespace Framework.Infrastructure.Domain.EntityFramework
         {
             /*
              * 在数据库中进行查询时直接使用e => e.Id.Equals(id)时，
-             * 由于将id作为object会产生异常，因此代码构建Lambda表达式
+             * 由于将id作为object参数处理时会产生异常，因此代码构建Lambda表达式
              */
             Expression<Func<T, bool>> exp = CreateIdEqualExpression(id);
 

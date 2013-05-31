@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using log4net;
 using log4net.Repository;
+using System.ComponentModel.Composition;
 
 namespace Framework.Infrastructure.Logger.Log4net
 {
     /// <summary>
     /// log4net日志对象提供者
     /// </summary>
+    [Export(typeof(ILoggerProvider))]
     public class Log4netLoggerProvider : ILoggerProvider
     {
 

@@ -11,12 +11,16 @@ namespace Framework.Infrastructure
     using Logger;
     using System.ComponentModel.Composition;
     using System.ComponentModel.Composition.Hosting;
+    using System.Reflection;
+    using Framework.Infrastructure.FluentConfiguration;
 
     /// <summary>
-    /// 服务工厂，从IOC容器中获取各种服务对象
+    /// 服务工厂类定义
     /// </summary>
     public class ServiceFactory
     {
+        public const string FrameworkLoggerName = "FrameworkLogger";
+
         /// <summary>
         /// 服务工厂静态实例对象
         /// </summary>
@@ -36,8 +40,25 @@ namespace Framework.Infrastructure
         /// <summary>
         /// IOC容器对象
         /// </summary>
-        [Import]
         public IContainer Container
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 日志记录对象提供者
+        /// </summary>
+        public ILoggerProvider LoggerProvider
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 日志记录对象
+        /// </summary>
+        protected ILogger Logger
         {
             get;
             private set;
@@ -64,6 +85,7 @@ namespace Framework.Infrastructure
 
         private ServiceFactory()
         {
+            var test = Assembly.GetExecutingAssembly().Location;
             var directoryCatalog = new DirectoryCatalog(AppDomain.CurrentDomain.BaseDirectory);
             CompositionContainer = new CompositionContainer(directoryCatalog);
 
@@ -77,34 +99,39 @@ namespace Framework.Infrastructure
         }
 
 
-        protected void InternalInitialize(IContainer container = null)
+        protected void InternalInitialize(Action<IServiceFactoryConfiguration> configure = null)
         {
-            if (container != null)
+            var configuration = new ServiceFactoryConfiguration();
+            if (configure != null)
             {
-                Container = container;
-            }
-            else
-            {
-                CompositionContainer.ComposeParts(this);
+                configure(configuration);
             }
 
-            ComponentHost = new ComponentHost(CompositionContainer);
-            ComponentHost.Initialize();
-            //var directoryCatalog = new DirectoryCatalog(AppDomain.CurrentDomain.BaseDirectory);
-            ////var assemblyCatalog = new AssemblyCatalog(Assembly.GetExecutingAssembly());
+            LoggerProvider = configuration.LoggerProvider == null
+                ?
+                CompositionContainer.GetExportedValue<ILoggerProvider>()
+                :
+                configuration.LoggerProvider;
 
-            ////var catalog = new AggregateCatalog(assemblyCatalog, directoryCatalog);
+            Container = configuration.Container == null 
+                ?
+                CompositionContainer.GetExportedValue<IContainer>() 
+                :
+                configuration.Container;
 
-            //container = new CompositionContainer(directoryCatalog);
-            //container.ComposeParts(this);
+            Logger = LoggerProvider.GetLogger(FrameworkLoggerName);
 
+            ComponentHost = new ComponentHost(CompositionContainer, Logger);
+            ComponentHost.Initialize(Container);
+
+            Logger.Info("服务工厂完成初始化");
         }
 
         /// <summary>
         /// 初始化服务工厂
         /// </summary>
         /// <param name="container"></param>
-        public static void Initialize(IContainer container = null)
+        public static void Initialize(Action<IServiceFactoryConfiguration> configure = null)
         {
             //Preconditions.CheckNotNull(container, "container");
 
@@ -124,21 +151,21 @@ namespace Framework.Infrastructure
             return Container.Resolve<IConfigurationProvider>();
         }
 
-        /// <summary>
-        /// 默认缓存对象提供者
-        /// </summary>
-        public ICacheProvider GetDefaultCacheProvider()
-        {
-            return Container.Resolve<ICacheProvider>();
-        }
+        ///// <summary>
+        ///// 默认缓存对象提供者
+        ///// </summary>
+        //public ICacheProvider GetDefaultCacheProvider()
+        //{
+        //    return Container.Resolve<ICacheProvider>();
+        //}
 
-        /// <summary>
-        /// 默认日志对象提供者
-        /// </summary>
-        public ILoggerProvider GetDefaultLoggerProvider()
-        {
-            return Container.Resolve<ILoggerProvider>();
-        }
+        ///// <summary>
+        ///// 默认日志对象提供者
+        ///// </summary>
+        //public ILoggerProvider GetDefaultLoggerProvider()
+        //{
+        //    return Container.Resolve<ILoggerProvider>();
+        //}
 
     }
 }

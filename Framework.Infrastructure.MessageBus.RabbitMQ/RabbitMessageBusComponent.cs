@@ -18,15 +18,19 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
             }
         }
 
-        public void Initialize()
+        public void OnComponentsInitializing(IContainer ontainer, Logger.ILogger logger)
         {
-            ServiceFactory.Instance.Container
-                .RegisterType<ISerializer, JsonSerializer>(LifeTime.Singleton)
+            ontainer.RegisterType<ISerializer, JsonSerializer>(LifeTime.Singleton)
                 .RegisterType<IConventions, Conventions>(LifeTime.Singleton)
                 .RegisterType<IConnectionFactory, ConnectionFactoryWrapper>(LifeTime.Singleton)
                 .RegisterType<IClusterHostSelectionStrategy<ConnectionFactoryInfo>, DefaultClusterHostSelectionStrategy<ConnectionFactoryInfo>>(LifeTime.Singleton)
                 .RegisterType<IConsumerFactory, QueueingConsumerFactory>(LifeTime.Singleton)
                 .RegisterType<IConsumerErrorStrategy, DefaultConsumerErrorStrategy>(LifeTime.Singleton);
         }
+
+        public void OnComponentsInitialized()
+        {
+        }
+
     }
 }

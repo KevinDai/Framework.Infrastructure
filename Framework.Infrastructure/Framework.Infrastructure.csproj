@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppSettings.cs" />
     <Compile Include="Cache\CacheExtension.cs" />
     <Compile Include="Cache\ICache.cs" />
     <Compile Include="Cache\ICacheProvider.cs" />
@@ -50,6 +51,7 @@
     <Compile Include="Container\ContainerExtension.cs" />
     <Compile Include="Container\IContainer.cs" />
     <Compile Include="Container\LifeTime.cs" />
+    <Compile Include="FluentConfiguration\IServiceFactoryConfiguration.cs" />
     <Compile Include="IComponent.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\ILoggerProvider.cs" />

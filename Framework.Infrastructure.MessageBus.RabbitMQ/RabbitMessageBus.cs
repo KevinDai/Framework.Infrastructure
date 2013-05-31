@@ -44,7 +44,7 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
             serializeType = TypeNameSerializer.Serialize;
             getCorrelationId = CorrelationIdGenerator.GetCorrelationId;
 
-            logger = ServiceFactory.Instance.GetDefaultLoggerProvider().GetLogger(MessageBusLoggerName);
+            logger = ServiceFactory.Instance.LoggerProvider.GetLogger(MessageBusLoggerName);
             serializer = ServiceFactory.Instance.Container.Resolve<ISerializer>();
             conventions = ServiceFactory.Instance.Container.Resolve<IConventions>();
             consumerFactory = ServiceFactory.Instance.Container.Resolve<IConsumerFactory>();
