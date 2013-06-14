@@ -35,8 +35,7 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
 
         public QueueingConsumerFactory(IConsumerErrorStrategy consumerErrorStrategy)
         {
-            logger = ServiceFactory.Instance.LoggerProvider.GetLogger(RabbitMessageBus.MessageBusLoggerName);
-            //this.logger = logger;
+            this.logger = Application.Current.LoggerProvider.GetLogger(RabbitMessageBus.MessageBusLoggerName);
             this.consumerErrorStrategy = consumerErrorStrategy;
 
             // start the subscription callback thread

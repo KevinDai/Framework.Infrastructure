@@ -7,121 +7,110 @@ using System.Collections.Concurrent;
 using RabbitMQ.Client.Exceptions;
 using Framework.Infrastructure.MessageBus.FluentConfiguration;
 using Framework.Infrastructure.MessageBus.RabbitMQ.ConnectionString;
-using Framework.Infrastructure.Container;
 using Framework.Infrastructure.MessageBus.Topology;
 using System.Threading.Tasks;
+using Castle.MicroKernel.Registration;
+using System.Configuration;
 
 namespace Framework.Infrastructure.MessageBus.RabbitMQ
 {
     public class RabbitMessageBus : IMessageBus
     {
-        internal static readonly string MessageBusLoggerName = "MessageBusLogger";
+        internal const string MessageBusLoggerName = "MessageBusLogger";
 
-        private readonly IConnectionConfiguration connectionConfiguration;
-        private readonly SerializeType serializeType;
-        private readonly ISerializer serializer;
-        private readonly IConsumerFactory consumerFactory;
-        private readonly ILogger logger;
-        private readonly Func<string> getCorrelationId;
-        private readonly IConventions conventions;
-
-        private readonly IPersistentConnection connection;
-        private readonly ConcurrentBag<SubscriptionAction> subscribeActions = new ConcurrentBag<SubscriptionAction>();
+        private readonly IConnectionConfiguration _connectionConfiguration;
+        private readonly ConcurrentBag<SubscriptionAction> _subscribeActions = new ConcurrentBag<SubscriptionAction>();
 
         public const bool NoAck = false;
         public virtual event Action Connected;
         public virtual event Action Disconnected;
 
-
-        public RabbitMessageBus(string connectionString)
-        {
-            Preconditions.CheckNotNull(connectionString, "connectionString");
-
-            var connectionStringParser = new ConnectionStringParser();
-            connectionConfiguration = connectionStringParser.Parse(connectionString);
-            ServiceFactory.Instance.Container.RegisterInstance<IConnectionConfiguration>(connectionConfiguration);
-
-            serializeType = TypeNameSerializer.Serialize;
-            getCorrelationId = CorrelationIdGenerator.GetCorrelationId;
-
-            logger = ServiceFactory.Instance.LoggerProvider.GetLogger(MessageBusLoggerName);
-            serializer = ServiceFactory.Instance.Container.Resolve<ISerializer>();
-            conventions = ServiceFactory.Instance.Container.Resolve<IConventions>();
-            consumerFactory = ServiceFactory.Instance.Container.Resolve<IConsumerFactory>();
-
-            connection = ServiceFactory.Instance.Container.Resolve<IPersistentConnection>();
-            connection.Connected += OnConnected;
-            connection.Disconnected += consumerFactory.ClearConsumers;
-            connection.Disconnected += OnDisconnected;
-        }
-
-        //public RabbitMessageBus(
-        //    IConnectionConfiguration connectionConfiguration,
-        //    IConnectionFactory connectionFactory,
-        //    SerializeType serializeType,
-        //    ISerializer serializer,
-        //    IConsumerFactory consumerFactory,
-        //    ILogger logger,
-        //    Func<string> getCorrelationId,
-        //    IConventions conventions)
-        //{
-        //    Preconditions.CheckNotNull(connectionConfiguration, "connectionConfiguration");
-        //    Preconditions.CheckNotNull(connectionFactory, "connectionFactory");
-        //    Preconditions.CheckNotNull(serializeType, "serializeType");
-        //    Preconditions.CheckNotNull(serializer, "serializer");
-        //    Preconditions.CheckNotNull(consumerFactory, "consumerFactory");
-        //    Preconditions.CheckNotNull(logger, "logger");
-        //    Preconditions.CheckNotNull(getCorrelationId, "getCorrelationId");
-        //    Preconditions.CheckNotNull(conventions, "conventions");
-
-        //    this.connectionConfiguration = connectionConfiguration;
-        //    this.serializeType = serializeType;
-        //    this.serializer = serializer;
-        //    this.consumerFactory = consumerFactory;
-        //    this.logger = logger;
-        //    this.getCorrelationId = getCorrelationId;
-        //    this.conventions = conventions;
-
-        //    connection = new PersistentConnection(connectionFactory, logger);
-        //    connection.Connected += OnConnected;
-        //    connection.Disconnected += consumerFactory.ClearConsumers;
-        //    connection.Disconnected += OnDisconnected;
-        //}
-
         public virtual SerializeType SerializeType
         {
-            get { return serializeType; }
+            get;
+            private set;
         }
 
         public virtual ISerializer Serializer
         {
-            get { return serializer; }
+            get;
+            private set;
         }
 
-        public IPersistentConnection Connection
+        public IPersistentConnection PersistentConnection
         {
-            get { return connection; }
+            get;
+            private set;
         }
 
         public IConsumerFactory ConsumerFactory
         {
-            get { return consumerFactory; }
+            get;
+            private set;
         }
 
         public ILogger Logger
         {
-            get { return logger; }
+            get;
+            private set;
         }
 
         public Func<string> GetCorrelationId
         {
-            get { return getCorrelationId; }
+            get;
+            private set;
         }
 
         public IConventions Conventions
         {
-            get { return conventions; }
+            get;
+            private set;
         }
+
+        public RabbitMessageBus(
+            IConnectionConfiguration connectionConfiguration,
+            IPersistentConnection persistentConnection,
+            IPersistentConnection persistentConnection1,
+            ISerializer serializer,
+            IConsumerFactory consumerFactory,
+            IConventions conventions)
+        {
+            Preconditions.CheckNotNull(connectionConfiguration, "connectionConfiguration");
+            Preconditions.CheckNotNull(serializer, "serializer");
+            Preconditions.CheckNotNull(consumerFactory, "consumerFactory");
+            Preconditions.CheckNotNull(conventions, "conventions");
+
+            Logger = Application.Current.LoggerProvider.GetLogger(MessageBusLoggerName);
+            SerializeType = TypeNameSerializer.Serialize;
+            GetCorrelationId = CorrelationIdGenerator.GetCorrelationId;
+
+            _connectionConfiguration = connectionConfiguration;
+            Serializer = serializer;
+            Conventions = conventions;
+            ConsumerFactory = consumerFactory;
+            PersistentConnection = persistentConnection;
+
+            PersistentConnection.Connected += OnConnected;
+            PersistentConnection.Disconnected += ConsumerFactory.ClearConsumers;
+            PersistentConnection.Disconnected += OnDisconnected;
+
+        }
+
+        //public RabbitMessageBus(IConnectionConfiguration connectionConfiguration)
+        //{
+        //    Preconditions.CheckNotNull(connectionConfiguration, "connectionConfiguration");
+
+        //    Logger = Application.Current.LoggerProvider.GetLogger(MessageBusLoggerName);
+        //    SerializeType = TypeNameSerializer.Serialize;
+        //    GetCorrelationId = CorrelationIdGenerator.GetCorrelationId;
+        //    Serializer = Application.Current.Container.Resolve<ISerializer>();
+        //    Conventions = Application.Current.Container.Resolve<IConventions>();
+        //    ConsumerFactory = Application.Current.Container.Resolve<IConsumerFactory>(connectionConfiguration);
+        //    PersistentConnection = Application.Current.Container.Resolve<IPersistentConnection>(connectionConfiguration);
+        //    PersistentConnection.Connected += OnConnected;
+        //    PersistentConnection.Disconnected += ConsumerFactory.ClearConsumers;
+        //    PersistentConnection.Disconnected += OnDisconnected;
+        //}
 
         public virtual void Subscribe<T>(IQueue queue, Func<IMessage<T>, MessageReceivedInfo, Task> onMessage)
         {
@@ -132,7 +121,7 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
             {
                 CheckMessageType<T>(properties);
 
-                var messageBody = serializer.BytesToMessage<T>(body);
+                var messageBody = Serializer.BytesToMessage<T>(body);
                 var message = new Message<T>(messageBody);
                 message.SetProperties(properties);
                 return onMessage(message, messageRecievedInfo);
@@ -153,15 +142,15 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
 
             subscriptionAction.Action = () =>
             {
-                var channel = connection.CreateModel();
-                channel.ModelShutdown += (model, reason) => logger.Debug(string.Format("Model Shutdown for queue: '{0}'", queue.Name));
+                var channel = PersistentConnection.CreateModel();
+                channel.ModelShutdown += (model, reason) => Logger.Debug(string.Format("Model Shutdown for queue: '{0}'", queue.Name));
 
                 queue.Visit(new TopologyBuilder(channel));
 
                 //channel.BasicQos(0, connectionConfiguration.PrefetchCount, false);
                 channel.BasicQos(0, 50, false);
 
-                var consumer = consumerFactory.CreateConsumer(subscriptionAction, channel, queue.IsSingleUse,
+                var consumer = ConsumerFactory.CreateConsumer(subscriptionAction, channel, queue.IsSingleUse,
                     (consumerTag, deliveryTag, redelivered, exchange, routingKey, properties, body) =>
                     {
                         var messageRecievedInfo = new MessageReceivedInfo
@@ -183,9 +172,9 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
                     consumer.ConsumerTag,   // consumerTag
                     consumer);              // consumer
 
-                logger.Debug(string.Format("Declared Consumer. queue='{0}', prefetchcount={1}",
+                Logger.Debug(string.Format("Declared Consumer. queue='{0}', prefetchcount={1}",
                     queue.Name,
-                    connectionConfiguration.PrefetchCount));
+                    _connectionConfiguration.PrefetchCount));
             };
 
             AddSubscriptionAction(subscriptionAction);
@@ -195,7 +184,7 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
         {
             if (subscriptionAction.IsMultiUse)
             {
-                subscribeActions.Add(subscriptionAction);
+                _subscribeActions.Add(subscriptionAction);
             }
 
             try
@@ -216,10 +205,10 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
 
         private void CheckMessageType<TMessage>(MessageProperties properties)
         {
-            var typeName = serializeType(typeof(TMessage));
+            var typeName = SerializeType(typeof(TMessage));
             if (properties.Type != typeName)
             {
-                logger.Error(string.Format("Message type is incorrect. Expected '{0}', but was '{1}'",
+                Logger.Error(string.Format("Message type is incorrect. Expected '{0}', but was '{1}'",
                     typeName, properties.Type));
 
                 throw new Exception(string.Format("Message type is incorrect. Expected '{0}', but was '{1}'",
@@ -237,21 +226,31 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
             return new RabbitPublishChannel(this, configure);
         }
 
+        public void Purge(IQueue queue)
+        {
+            Preconditions.CheckNotNull(queue, "queue");
+
+            using (var channel = PersistentConnection.CreateModel())
+            {
+                channel.QueuePurge(queue.Name);
+            }
+        }
+
         protected void OnConnected()
         {
             if (Connected != null) Connected();
 
-            logger.Debug("Re-creating subscribers");
+            Logger.Debug("Re-creating subscribers");
             try
             {
-                foreach (var subscribeAction in subscribeActions)
+                foreach (var subscribeAction in _subscribeActions)
                 {
                     subscribeAction.Action();
                 }
             }
             catch (OperationInterruptedException operationInterruptedException)
             {
-                logger.Error(string.Format("Re-creating subscribers failed: reason: '{0}'\n{1}",
+                Logger.Error(string.Format("Re-creating subscribers failed: reason: '{0}'\n{1}",
                     operationInterruptedException.Message,
                     operationInterruptedException.ToString()));
             }
@@ -264,7 +263,7 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
 
         public virtual bool IsConnected
         {
-            get { return connection.IsConnected; }
+            get { return PersistentConnection.IsConnected; }
         }
 
         private bool disposed = false;
@@ -272,12 +271,12 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
         {
             if (disposed) return;
 
-            consumerFactory.Dispose();
-            connection.Dispose();
+            ConsumerFactory.Dispose();
+            PersistentConnection.Dispose();
 
             disposed = true;
 
-            logger.Debug("Connection disposed");
+            Logger.Debug("Connection disposed");
         }
     }
 }

@@ -7,13 +7,12 @@ using Framework.Infrastructure.MessageBus;
 using Framework.Infrastructure.MessageBus.RabbitMQ;
 using Framework.Infrastructure.MessageBus.Topology;
 using Framework.Infrastructure;
-using Framework.Infrastructure.Container;
 using Moq;
-using Microsoft.Practices.Unity;
 using Framework.Infrastructure.Logger;
 using Framework.Infrastructure.Logger.Log4net;
 using System.Threading;
 using System.Threading.Tasks;
+using Framework.Infrastructure.MessageBus.RabbitMQ.ConnectionString;
 
 namespace MessageBus.RabbitMQ.Test
 {
@@ -50,11 +49,14 @@ namespace MessageBus.RabbitMQ.Test
         [ClassInitialize()]
         public static void ClassInitialize(TestContext testContext)
         {
-            ServiceFactory.Initialize();
+            Application.InitCurrent();
+            Application.Current.Start();
+
+            _messageBus = Application.Current.Container.Resolve<IMessageBusProvider>().GetMessageBus();
+            //_messageBus = Application.Current.Container.Resolve<IMessageBusProvider>().GetMessageBus("test");
             //ServiceFactory.Initialize(new Framework.Infrastructure.Container.UnityContainer.UnityContainer(containner));
             //container.Container
             //ServiceFactory.Initialize(new
-            //_messageBus = new RabbitMessageBus(@"host=localhost:5672;virtualHost=/;username=guest;password=guest");
         }
         //
         // 在类中的所有测试都已运行之后使用 ClassCleanup 运行代码
@@ -62,6 +64,7 @@ namespace MessageBus.RabbitMQ.Test
         public static void ClassCleanup()
         {
             _messageBus.Dispose();
+            Application.Current.Stop();
         }
         //
         // 在运行每个测试之前，使用 TestInitialize 来运行代码
@@ -74,16 +77,41 @@ namespace MessageBus.RabbitMQ.Test
         //
         #endregion
 
+        public class TestObject
+        {
+            public string Id { get; set; }
+            public string Name { get; set; }
+            public object Object { get; set; }
+        }
+
         [TestMethod]
         public void Should_be_able_to_publish()
         {
-            //var message = new Message<string>("Hello! " + Guid.NewGuid().ToString().Substring(0, 5));
-            //message.Properties.DeliveryMode = 2;
-            //using (var publishChannel = _messageBus.OpenPublishChannel())
-            //{
-            //    var queue = Queue.DeclareDurable("Test");
-            //    publishChannel.Publish(queue, message);
-            //}
+            var message = new Message<string>("Hello! " + Guid.NewGuid().ToString().Substring(0, 5));
+            message.Properties.DeliveryMode = 2;
+            using (var publishChannel = _messageBus.OpenPublishChannel())
+            {
+                var queue = Queue.DeclareTransient("Test");
+                publishChannel.Publish(queue, message);
+            }
+            Console.Out.WriteLine("message.Text = {0}", message.Body);
+        }
+
+        [TestMethod]
+        public void Object_publish_test()
+        {
+            var message = new Message<TestObject>(new TestObject()
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = "test",
+                Object = new TestObject() { Id = Guid.NewGuid().ToString() }
+            });
+            message.Properties.DeliveryMode = 2;
+            using (var publishChannel = _messageBus.OpenPublishChannel())
+            {
+                var queue = Queue.DeclareDurable("Test");
+                publishChannel.Publish(queue, message);
+            }
             //Console.Out.WriteLine("message.Text = {0}", message.Body);
         }
 
@@ -163,7 +191,7 @@ namespace MessageBus.RabbitMQ.Test
             var autoResetEvent = new AutoResetEvent(false);
 
             var queue = Queue.DeclareDurable("Test");
-            _messageBus.Subscribe<string>(queue, (msg, messageReceivedInfo) =>
+            _messageBus.Subscribe<TestObject>(queue, (msg, messageReceivedInfo) =>
                  Task.Factory.StartNew(() =>
                  {
                      Console.WriteLine("1:" + msg.Body);

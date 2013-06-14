@@ -31,8 +31,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core">
+      <HintPath>..\packages\Castle.Core.3.2.0\lib\net40-client\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Windsor">
+      <HintPath>..\packages\Castle.Windsor.3.2.0\lib\net40\Castle.Windsor.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -48,16 +53,22 @@
     <Compile Include="Cache\ICacheProvider.cs" />
     <Compile Include="ComponentHost.cs" />
     <Compile Include="Configuration\IConfigurationProvider.cs" />
-    <Compile Include="Container\ContainerExtension.cs" />
-    <Compile Include="Container\IContainer.cs" />
-    <Compile Include="Container\LifeTime.cs" />
-    <Compile Include="FluentConfiguration\IServiceFactoryConfiguration.cs" />
+    <Compile Include="Event\IRoutedEventContainer.cs" />
+    <Compile Include="Event\RaiseScope.cs" />
+    <Compile Include="Event\RoutedEvent.cs" />
+    <Compile Include="Event\RoutedEventArgs.cs" />
+    <Compile Include="Event\RoutedEventHandler.cs" />
+    <Compile Include="Event\RoutedEventSender.cs" />
     <Compile Include="IComponent.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\ILoggerProvider.cs" />
     <Compile Include="Preconditions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceFactory.cs" />
+    <Compile Include="Application.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

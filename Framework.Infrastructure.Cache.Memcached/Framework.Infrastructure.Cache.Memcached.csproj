@@ -52,7 +52,6 @@
   <ItemGroup>
     <Compile Include="MemcachedCache.cs" />
     <Compile Include="MemcachedCacheProvider.cs" />
-    <Compile Include="MemcachedConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

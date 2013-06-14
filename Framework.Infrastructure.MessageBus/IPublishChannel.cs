@@ -19,6 +19,10 @@ namespace Framework.Infrastructure.MessageBus
         void Publish<T>(IQueue queue, IMessage<T> message, Action<IPublishConfiguration> configure = null);
 
         void Publish(IQueue queue, MessageProperties properties, byte[] messageBody, Action<IPublishConfiguration> configure = null);
+
+        //bool WaitForConfirms();
+
+        //bool WaitForConfirms(TimeSpan timeout, out bool timedOut);
     }
 
 }

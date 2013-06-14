@@ -30,8 +30,9 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
 
         public PersistentConnection(IConnectionFactory connectionFactory)
         {
+            _logger = Application.Current.LoggerProvider.GetLogger(RabbitMessageBus.MessageBusLoggerName);
+
             _connectionFactory = connectionFactory;
-            _logger = ServiceFactory.Instance.LoggerProvider.GetLogger(RabbitMessageBus.MessageBusLoggerName);
 
             TryToConnect(null);
         }

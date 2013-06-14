@@ -31,19 +31,20 @@ namespace Framework.Infrastructure.Cache.Memcached
 
         public MemcachedCacheProvider()
         {
-            var item = ServiceFactory.Instance.GetDefaultConfigurationProvider().GetItem<MemcachedConfiguration>(MemcachedConfigurationItemKey);
-            MemcachedClient = new MemcachedClient(item.ConvertTo());
+            MemcachedClient = new MemcachedClient("memcached");
+            //var item = ServiceFactory.Instance.GetDefaultConfigurationProvider().GetItem<MemcachedConfiguration>(MemcachedConfigurationItemKey);
+            //MemcachedClient = new MemcachedClient(item.ConvertTo());
         }
 
-        public MemcachedCacheProvider(MemcachedConfiguration configuration)
-        {
-            if (configuration == null)
-            {
-                throw new ArgumentNullException("configuration");
-            }
-            MemcachedClient = new MemcachedClient(configuration.ConvertTo());
-            var test = MemcachedClient.Stats();
-        }
+        //public MemcachedCacheProvider(MemcachedConfiguration configuration)
+        //{
+        //    if (configuration == null)
+        //    {
+        //        throw new ArgumentNullException("configuration");
+        //    }
+        //    MemcachedClient = new MemcachedClient(configuration.ConvertTo());
+        //    var test = MemcachedClient.Stats();
+        //}
 
         /// <summary>
         /// <see cref="ICacheProvider"/>

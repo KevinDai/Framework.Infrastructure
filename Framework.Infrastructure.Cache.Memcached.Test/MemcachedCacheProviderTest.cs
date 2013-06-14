@@ -14,11 +14,7 @@ namespace Framework.Infrastructure.Cache.Memcached.Test
 
         private MemcachedCacheProvider CreateMemcachedCacheProvider()
         {
-            var configuration = new MemcachedConfiguration()
-            {
-                Address = new List<string>() { "127.0.0.1:11211" }
-            };
-            return new MemcachedCacheProvider(configuration);
+            return new MemcachedCacheProvider();
         }
 
         [TestMethod]

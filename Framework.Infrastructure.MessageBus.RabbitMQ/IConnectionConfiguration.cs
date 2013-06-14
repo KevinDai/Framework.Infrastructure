@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.IO;
+using Framework.Infrastructure.MessageBus.RabbitMQ.ConnectionString;
+using Sprache;
 
 namespace Framework.Infrastructure.MessageBus.RabbitMQ
 {
@@ -60,6 +62,22 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
             Hosts = new List<IHostConfiguration>();
             ClientProperties = new Dictionary<string, string>();
             SetDefaultClientProperties(ClientProperties);
+        }
+
+        public ConnectionConfiguration(string connectionString)
+            : this()
+        {
+            try
+            {
+                ConnectionStringGrammar.ConnectionStringBuilder
+                    .Parse(connectionString)
+                    .Aggregate(this, (current, updateFunction) => updateFunction(current));
+            }
+            catch (ParseException parseException)
+            {
+                throw new Exception(string.Format("Connection String {0}", parseException.Message));
+            }
+         
         }
 
         private void SetDefaultClientProperties(IDictionary<string, string> clientProperties)

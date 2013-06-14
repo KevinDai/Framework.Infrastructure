@@ -2,30 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Framework.Infrastructure.Container;
 using Framework.Infrastructure.Logger;
+using Castle.Core;
+using Castle.Windsor;
+using Castle.MicroKernel.Registration;
 
 namespace Framework.Infrastructure
 {
     /// <summary>
     /// 组件接口定义
     /// </summary>
-    public interface IComponent
+    public interface IComponent : IWindsorInstaller
     {
         /// <summary>
-        /// 名称
+        /// 启动组件
         /// </summary>
-        string Name { get; }
+        void Start();
 
         /// <summary>
-        /// 组件初始化时处理方法
+        /// 停止组件
         /// </summary>
-        /// <param name="ontainer"></param>
-        void OnComponentsInitializing(IContainer ontainer, ILogger logger);
-
-        /// <summary>
-        /// 组件完成初始化时处理方法（所有组件）
-        /// </summary>
-        void OnComponentsInitialized();
+        void Stop();
     }
 }

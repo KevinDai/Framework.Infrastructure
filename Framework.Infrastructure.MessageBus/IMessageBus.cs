@@ -19,6 +19,8 @@ namespace Framework.Infrastructure.MessageBus
 
         IPublishChannel OpenPublishChannel(Action<IChannelConfiguration> configure);
 
+        //void Purge(IQueue queue);
+
         event Action Connected;
 
         event Action Disconnected;

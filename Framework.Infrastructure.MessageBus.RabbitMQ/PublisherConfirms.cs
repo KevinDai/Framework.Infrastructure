@@ -84,7 +84,7 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
 
             public CallbackSet(Action success, Action failure)
             {
-                Success = success;
+                Success = success??()=>{};
                 Failure = failure;
             }
         }

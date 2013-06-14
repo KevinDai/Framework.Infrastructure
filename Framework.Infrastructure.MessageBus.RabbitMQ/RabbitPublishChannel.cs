@@ -21,13 +21,13 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
         {
             Preconditions.CheckNotNull(rabbitMessageBus, "rabbitMessageBus");
 
-            if (!rabbitMessageBus.Connection.IsConnected)
+            if (!rabbitMessageBus.PersistentConnection.IsConnected)
             {
                 throw new Exception("Cannot open channel for publishing, the broker is not connected");
             }
 
             this._rabbitMessageBus = rabbitMessageBus;
-            _channel = rabbitMessageBus.Connection.CreateModel();
+            _channel = rabbitMessageBus.PersistentConnection.CreateModel();
 
             _channelConfiguration = new ChannelConfiguration();
             configure(_channelConfiguration);
@@ -69,7 +69,7 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
             {
                 throw new Exception("PublishChannel is already disposed");
             }
-            if (!_rabbitMessageBus.Connection.IsConnected)
+            if (!_rabbitMessageBus.PersistentConnection.IsConnected)
             {
                 throw new Exception("Publish failed. No rabbit server connected.");
             }
@@ -84,12 +84,14 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
 
                 if (_publisherConfirms != null)
                 {
-                    if (configuration.SuccessCallback == null || configuration.FailureCallback == null)
-                    {
-                        throw new Exception("When pulisher confirms are on, you must supply success and failure callbacks in the publish configuration");
-                    }
+                    //if (configuration.SuccessCallback == null || configuration.FailureCallback == null)
+                    //{
+                    //    throw new Exception("When pulisher confirms are on, you must supply success and failure callbacks in the publish configuration");
+                    //}
 
-                    _publisherConfirms.RegisterCallbacks(_channel, configuration.SuccessCallback, configuration.FailureCallback);
+                    _publisherConfirms.RegisterCallbacks(_channel,
+                        configuration.SuccessCallback != null ? configuration.SuccessCallback : () => { },
+                        configuration.FailureCallback != null ? configuration.FailureCallback : () => { });
                 }
 
                 var defaultProperties = _channel.CreateBasicProperties();
@@ -119,25 +121,31 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
             }
         }
 
+        private void EnablePublisherConfirms()
+        {
+            if (_publisherConfirms == null)
+            {
+                throw new InvalidOperationException(string.Format("Pulisher confirms need to be set to on"));
+            }
+        }
 
         #region IPublishChannel接口实现
 
-        public void Publish<T>(IExchange exchange, string routingKey, IMessage<T> message, Action<IPublishConfiguration> configure)
+        public void Publish<T>(IExchange exchange, string routingKey, IMessage<T> message, Action<IPublishConfiguration> configure = null)
         {
+            Preconditions.CheckNotNull(exchange, "exchange");
             Preconditions.CheckNotNull(routingKey, "routingKey");
             Preconditions.CheckNotNull(message, "message");
-            Preconditions.CheckNotNull(configure, "configure");
 
             Publish(exchange.Name, routingKey, exchange, message, configure);
         }
 
-        public void Publish(IExchange exchange, string routingKey, MessageProperties properties, byte[] messageBody, Action<IPublishConfiguration> configure)
+        public void Publish(IExchange exchange, string routingKey, MessageProperties properties, byte[] messageBody, Action<IPublishConfiguration> configure = null)
         {
             Preconditions.CheckNotNull(exchange, "exchange");
             Preconditions.CheckNotNull(routingKey, "routingKey");
             Preconditions.CheckNotNull(properties, "properties");
             Preconditions.CheckNotNull(messageBody, "messageBody");
-            Preconditions.CheckNotNull(configure, "configure");
 
             Publish(exchange.Name, routingKey, exchange, properties, messageBody, configure);
         }
@@ -145,12 +153,33 @@ namespace Framework.Infrastructure.MessageBus.RabbitMQ
 
         public void Publish<T>(IQueue queue, IMessage<T> message, Action<IPublishConfiguration> configure = null)
         {
+            Preconditions.CheckNotNull(queue, "queue");
+            Preconditions.CheckNotNull(message, "message");
+
             Publish(string.Empty, queue.Name, queue, message, configure);
         }
 
         public void Publish(IQueue queue, MessageProperties properties, byte[] messageBody, Action<IPublishConfiguration> configure = null)
         {
+            Preconditions.CheckNotNull(queue, "queue");
+            Preconditions.CheckNotNull(properties, "properties");
+            Preconditions.CheckNotNull(messageBody, "messageBody");
+
             Publish(string.Empty, queue.Name, queue, properties, messageBody, configure);
+        }
+
+        public bool WaitForConfirms()
+        {
+            EnablePublisherConfirms();
+
+            return _channel.WaitForConfirms();
+        }
+
+        public bool WaitForConfirms(TimeSpan timeout, out bool timedOut)
+        {
+            EnablePublisherConfirms();
+
+            return _channel.WaitForConfirms(timeout, out timedOut);
         }
 
         private IExchange BindDefaultExchange(IQueue queue)
